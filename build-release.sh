@@ -82,6 +82,21 @@ for os in ${OSES[@]}; do
 	$sum kcptun-${os}-arm64-$VERSION.tar.gz
 done
 
+# s390x
+OSES=(linux)
+for os in ${OSES[@]}; do
+	suffix=""
+	if [ "$os" == "windows" ]
+	then
+		suffix=".exe"
+	fi
+	env CGO_ENABLED=0 GOOS=$os GOARCH=s390x go build -mod=vendor -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o client_${os}_s390x${suffix} github.com/xtaci/kcptun/client
+	env CGO_ENABLED=0 GOOS=$os GOARCH=s390x go build -mod=vendor -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o server_${os}_s390x${suffix} github.com/xtaci/kcptun/server
+	if $UPX; then upx -9 client_${os}_as390x${suffix} server_${os}_s390x${suffix};fi
+	tar -zcf kcptun-${os}-s390x-$VERSION.tar.gz client_${os}_s390x${suffix} server_${os}_s390x${suffix}
+	$sum kcptun-${os}-s390x-$VERSION.tar.gz
+done
+
 #MIPS32LE
 env CGO_ENABLED=0 GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -mod=vendor -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o client_linux_mipsle github.com/xtaci/kcptun/client
 env CGO_ENABLED=0 GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -mod=vendor -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o server_linux_mipsle github.com/xtaci/kcptun/server
